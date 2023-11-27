@@ -70,6 +70,7 @@ float mVUnit = 0;
 
 //DAC
 uint16_t DAC_Output = 0;
+uint16_t prev_DAC = 0;
 float DAC_Input_mV = 0;
 uint16_t pressed = 0;
 //uint16_t ACD_Input = 0;
@@ -83,8 +84,8 @@ static void MX_LPUART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC1_Init(void);
 /* USER CODE BEGIN PFP */
-uint16_t ADC_Read_blocking();
-//void DAC_Update(uint16_t);
+void ADC_Read_blocking();
+void DAC_Update();
 
 
 /* USER CODE END PFP */
@@ -140,8 +141,8 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  void DAC_Update(uint16_t DAC_Output);
-	  void ADC_Read_blocking();
+	  ADC_Read_blocking();
+	  DAC_Update();
 	  }
   /* USER CODE END 3 */
 }
@@ -396,7 +397,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-uint16_t ADC_Read_blocking()
+void ADC_Read_blocking()
 {
 	static uint32_t TimeStamp = 0;
 	if( HAL_GetTick()<TimeStamp) return;
@@ -408,21 +409,31 @@ uint16_t ADC_Read_blocking()
 	ADC1_Channel.data = HAL_ADC_GetValue(&hadc1);
 	TenBit = (ADC1_Channel.data)*1024/4096;
 	mVUnit = (ADC1_Channel.data)*3300/4096;
-	DAC_Output = ADC1_Channel.data;
 
 	HAL_ADC_Stop(&hadc1);
-	return DAC_Output;
 }
 
-void DAC_Update(uint16_t DAC_Output)
+void DAC_Update()
 {
 	static uint32_t timeStamp =0;
 	if(HAL_GetTick()>timeStamp)
 	{
 	timeStamp = HAL_GetTick()+750;
+	pressed = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+
+	//DAC_Output =  (DAC_Input_mV/3300)*4095;	//mV
+
+
+	if (pressed == 1) {
+		DAC_Output = (HAL_ADC_GetValue(&hadc1))*3300/4096;;
+		prev_DAC = DAC_Output;
+
+
+	} else {
+		DAC_Output = prev_DAC;
+	}
 	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DAC_Output);
 
-	DAC_Output =  (DAC_Input_mV/3300)*4095;	//mV
 
 
 	}
