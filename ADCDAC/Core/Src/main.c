@@ -71,7 +71,9 @@ float mVUnit = 0;
 //DAC
 uint16_t DAC_Output = 0;
 float DAC_Input_mV = 0;
-
+uint16_t pressed = 0;
+//uint16_t ACD_Input = 0;
+//uint16_t DAC_Output = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -81,6 +83,9 @@ static void MX_LPUART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_DAC1_Init(void);
 /* USER CODE BEGIN PFP */
+uint16_t ADC_Read_blocking();
+//void DAC_Update(uint16_t);
+
 
 /* USER CODE END PFP */
 
@@ -122,6 +127,8 @@ int main(void)
   MX_DAC1_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 2048);
+  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
 
   /* USER CODE END 2 */
 
@@ -133,8 +140,9 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  ADC_Read_blocking();
-  }
+	  void DAC_Update(uint16_t DAC_Output);
+	  void ADC_Read_blocking();
+	  }
   /* USER CODE END 3 */
 }
 
@@ -388,7 +396,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void ADC_Read_blocking()
+uint16_t ADC_Read_blocking()
 {
 	static uint32_t TimeStamp = 0;
 	if( HAL_GetTick()<TimeStamp) return;
@@ -400,9 +408,24 @@ void ADC_Read_blocking()
 	ADC1_Channel.data = HAL_ADC_GetValue(&hadc1);
 	TenBit = (ADC1_Channel.data)*1024/4096;
 	mVUnit = (ADC1_Channel.data)*3300/4096;
+	DAC_Output = ADC1_Channel.data;
 
 	HAL_ADC_Stop(&hadc1);
+	return DAC_Output;
+}
 
+void DAC_Update(uint16_t DAC_Output)
+{
+	static uint32_t timeStamp =0;
+	if(HAL_GetTick()>timeStamp)
+	{
+	timeStamp = HAL_GetTick()+750;
+	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DAC_Output);
+
+	DAC_Output =  (DAC_Input_mV/3300)*4095;	//mV
+
+
+	}
 }
 /* USER CODE END 4 */
 

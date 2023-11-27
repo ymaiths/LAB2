@@ -1,8 +1,9 @@
-../Core/Src/main.c:96:5:main	1
-../Core/Src/main.c:145:6:SystemClock_Config	3
-../Core/Src/main.c:192:13:MX_ADC1_Init	4
-../Core/Src/main.c:260:13:MX_DAC1_Init	3
-../Core/Src/main.c:307:13:MX_LPUART1_UART_Init	5
-../Core/Src/main.c:354:13:MX_GPIO_Init	1
-../Core/Src/main.c:391:6:ADC_Read_blocking	4
-../Core/Src/main.c:413:6:Error_Handler	1
+../Core/Src/main.c:101:5:main	1
+../Core/Src/main.c:159:6:SystemClock_Config	3
+../Core/Src/main.c:206:13:MX_ADC1_Init	4
+../Core/Src/main.c:274:13:MX_DAC1_Init	3
+../Core/Src/main.c:321:13:MX_LPUART1_UART_Init	5
+../Core/Src/main.c:368:13:MX_GPIO_Init	1
+../Core/Src/main.c:405:10:ADC_Read_blocking	4
+../Core/Src/main.c:423:6:DAC_Update	2
+../Core/Src/main.c:441:6:Error_Handler	1
